@@ -6,3 +6,4 @@
 
 ![描述](schedule-poster/resources/reference/基准-白底赛博.png)
 
+![描述](schedule-poster/resources/reference/蓝黑粗框-海报.png)
