@@ -1,0 +1,38 @@
+{
+  "title": "周末魔啵周历",
+  "version": "// v2.6",
+  "kicker": "WEEKLY SCHEDULE",
+  "subtitle": "NEON DISTRICT · STREAM LINEUP · 8.8 — 8.14",
+  "hud": ["SYS. ONLINE · LINK 96%", "NODE 07 / SIGNAL STABLE"],
+  "portrait": "portrait.png",
+  "days": [
+    { "dow": "周一", "date": "08.08", "icon": "monitor", "hot": false,
+      "slots": [{ "time": "12:00 – 14:00", "tag": "闲聊", "lines": ["随便啵啵"] }] },
+    { "dow": "周二", "date": "08.09", "icon": "gamepad-2", "hot": false,
+      "slots": [{ "time": "12:00 – 14:00", "tag": "游戏", "lines": ["阿尔宙斯", "希望别晕 3D 呜呜 qwq"] }] },
+    { "dow": "周三", "date": "08.10", "icon": "mic", "hot": false,
+      "slots": [
+        { "time": "12:00 – 14:00", "tag": "休息", "lines": ["下午补觉"] },
+        { "time": "23:00 – 深夜", "tag": "电台", "lines": ["ASMR 助眠"] }] },
+    { "dow": "周四", "date": "08.11", "icon": "rocket", "hot": true,
+      "slots": [{ "time": "12:00 – 14:00", "tag": "新游", "lines": ["咩咩启示录！！", "好期待哦～要把大家都做进去"] }] },
+    { "dow": "周五", "date": "08.12", "icon": "terminal", "hot": true,
+      "slots": [
+        { "time": "17:00 – 14:00", "tag": "游戏", "lines": ["咩咩启示录"] },
+        { "time": "23:00 – 深夜", "tag": "联动", "lines": ["舰长参与 王者荣耀"] }] },
+    { "dow": "周六", "date": "08.13", "icon": "radio", "hot": false,
+      "slots": [
+        { "time": "12:00 – 14:00", "tag": "休息", "lines": ["自由活动"] },
+        { "time": "23:00 – 深夜", "tag": "歌回", "lines": ["但是版权？"] }] },
+    { "dow": "周日", "date": "08.14", "icon": "cpu", "hot": false,
+      "slots": [{ "time": "12:00 – 14:00", "tag": "游戏", "lines": ["咩咩启示录"] }] }
+  ],
+  "notice": { "dow": "公告", "date": "// NOTICE",
+    "slots": [{ "tag": "", "lines": ["Q 版抱枕已到货", "私信领取", "直播时间以群公告为准"] }] },
+  "bonus": {
+    "title": "本月上舰福利", "tag": "// BONUS", "live": true,
+    "lines": ["8 月舰长：亲手画指针和壁纸", "Q 版抱枕已到货 · 直播时间以群公告为准"],
+    "big": "03", "bigLabel": "SLOTS LEFT", "height": 168
+  },
+  "footer": ["// TRANSMISSION END", "CH.██████ · NEON DISTRICT"]
+}

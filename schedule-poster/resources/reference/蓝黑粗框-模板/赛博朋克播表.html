@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>赛博朋克播表模板 · 1600×900</title>
+<!--
+  改动指南：
+  1. 每一天是 <section class="day">，里面的 .date 是日期，.slot 是时段，
+     .txt 里写内容，随便加行。
+  2. 如果某天有两个时段，复制一个 <div class="slot"> 即可。
+  3. 右侧 panel 是「本月福利 / 公告」，改文字就行。
+  4. 想导出图片：浏览器全屏后用截图工具，或者 Ctrl+P 打印成 PDF 再转图。
+-->
+<style>
+/* ============ 字体（来自同目录的 ../字体） ============ */
+@font-face{font-family:Orbitron;src:url("../字体/Orbitron-700.ttf");font-weight:700}
+@font-face{font-family:Orbitron;src:url("../字体/Orbitron-900.ttf");font-weight:900}
+@font-face{font-family:Rajdhani;src:url("../字体/Rajdhani-600.ttf");font-weight:600}
+@font-face{font-family:ChakraPetch;src:url("../字体/ChakraPetch-600.ttf");font-weight:600}
+@font-face{font-family:ShareTechMono;src:url("../字体/ShareTechMono-400.ttf")}
+@font-face{font-family:Oxanium;src:url("../字体/Oxanium-700.ttf");font-weight:700}
+@font-face{font-family:ZCOOL;src:url("../字体/ZCOOLQingKeHuangYou-400.ttf")}
+
+:root{
+  --bg:#05070d;
+  --panel:rgba(8,18,32,.72);
+  --cyan:#00e5ff;
+  --magenta:#ff2d75;
+  --lime:#c8ff2e;
+  --amber:#ffb020;
+  --ink:#dff6ff;
+  --dim:#5f7c8c;
+  --line:rgba(0,229,255,.28);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:#020306;
+  display:flex;align-items:center;justify-content:center;
+  font-family:ChakraPetch,system-ui,sans-serif;color:var(--ink);
+  overflow:auto;
+}
+
+/* ============ 画布 1600×900 ============ */
+.board{
+  position:relative;width:1600px;height:900px;flex:none;
+  display:flex;flex-direction:column;
+  background:
+    radial-gradient(1200px 600px at 12% -10%, rgba(0,229,255,.13), transparent 60%),
+    radial-gradient(900px 500px at 100% 110%, rgba(255,45,117,.14), transparent 60%),
+    var(--bg);
+  overflow:hidden;
+  transform-origin:center center;
+}
+/* 网格 + 扫描线 */
+.board::before{
+  content:"";position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(0,229,255,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,229,255,.05) 1px,transparent 1px);
+  background-size:40px 40px;
+  mask-image:radial-gradient(circle at 50% 40%,#000 30%,transparent 85%);
+}
+.board::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.035) 0 1px,transparent 1px 4px);
+  mix-blend-mode:overlay;
+}
+
+/* ============ 顶部 ============ */
+header{
+  position:relative;z-index:2;flex:none;
+  padding:26px 44px 0;display:flex;align-items:flex-start;justify-content:space-between;
+}
+.kicker{
+  font-family:ShareTechMono;font-size:13px;letter-spacing:.42em;color:var(--cyan);
+  display:flex;align-items:center;gap:10px;text-transform:uppercase;
+}
+.kicker i{width:34px;height:1px;background:var(--cyan);display:block;box-shadow:0 0 8px var(--cyan)}
+h1{
+  font-family:ZCOOL,Orbitron,sans-serif;font-size:74px;line-height:.95;
+  letter-spacing:.04em;margin-top:6px;
+  color:#eafcff;
+  text-shadow:
+     3px 0 0 rgba(255,45,117,.85), -3px 0 0 rgba(0,229,255,.85),
+     0 0 26px rgba(0,229,255,.55);
+}
+h1 em{
+  font-family:Orbitron;font-style:normal;font-weight:900;font-size:38px;
+  letter-spacing:.14em;vertical-align:super;color:var(--magenta);
+  text-shadow:0 0 18px rgba(255,45,117,.8);
+}
+.sub{
+  font-family:Rajdhani;font-size:17px;letter-spacing:.22em;color:var(--dim);
+  margin-top:8px;text-transform:uppercase;
+}
+.hud{text-align:right;font-family:ShareTechMono;font-size:12px;color:var(--dim);line-height:1.9}
+.hud b{color:var(--cyan);font-weight:400}
+.hud .bars{display:flex;gap:3px;justify-content:flex-end;margin-top:6px}
+.hud .bars s{width:5px;height:16px;background:var(--cyan);opacity:.75;display:block}
+.hud .bars s:nth-child(2n){height:9px;opacity:.35}
+.hud .bars s:nth-child(3n){height:22px;opacity:.55}
+
+/* ============ 版心 ============ */
+.wrap{
+  position:relative;z-index:2;flex:1;min-height:0;
+  padding:20px 44px 26px;display:grid;grid-template-columns:1fr 372px;gap:26px;
+  align-items:stretch;
+}
+
+/* ============ 日卡 ============ */
+.days{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1fr;height:100%;gap:14px}
+.days .day:nth-child(n+5){grid-column:span 1}
+.day{
+  position:relative;
+  background:linear-gradient(160deg,rgba(0,229,255,.07),rgba(255,45,117,.05) 70%,transparent);
+  border:1px solid var(--line);
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 20px),calc(100% - 20px) 100%,0 100%);
+  padding:13px 14px 14px;min-height:0;overflow:hidden;
+  box-shadow:inset 0 0 40px rgba(0,229,255,.05);
+}
+.day::before{
+  content:"";position:absolute;left:0;top:0;width:44px;height:2px;background:var(--cyan);
+  box-shadow:0 0 10px var(--cyan);
+}
+.day .dow{
+  font-family:ZCOOL,sans-serif;font-size:22px;letter-spacing:.06em;color:#eafcff;
+  display:flex;align-items:baseline;gap:8px;
+}
+.day .date{
+  font-family:Orbitron;font-weight:700;font-size:15px;color:var(--cyan);
+  letter-spacing:.06em;
+}
+.day.hot .date{color:var(--magenta)}
+.day .ico{
+  position:absolute;right:12px;top:11px;width:19px;height:19px;background:var(--cyan);opacity:.75;
+  -webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat;
+}
+.slot{margin-top:10px;border-top:1px dashed rgba(0,229,255,.18);padding-top:9px}
+.slot:first-of-type{border-top:none;padding-top:2px}
+.time{
+  font-family:ShareTechMono;font-size:11.5px;color:var(--lime);letter-spacing:.08em;
+}
+.txt{
+  font-family:Rajdhani,ZCOOL,sans-serif;font-weight:600;font-size:15px;line-height:1.34;
+  color:#cfe9f5;margin-top:4px;
+}
+.txt b{color:#fff;font-weight:600}
+.tag{
+  display:inline-block;font-family:ShareTechMono;font-size:10px;letter-spacing:.1em;
+  color:var(--bg);background:var(--cyan);padding:1px 6px;margin-right:5px;
+  clip-path:polygon(0 0,100% 0,calc(100% - 4px) 100%,0 100%);
+}
+
+/* ============ 右侧 ============ */
+aside{display:flex;flex-direction:column;gap:14px;height:100%;min-height:0}
+.card{
+  position:relative;border:1px solid rgba(255,45,117,.32);
+  background:linear-gradient(180deg,rgba(255,45,117,.09),rgba(5,7,13,.4));
+  clip-path:polygon(18px 0,100% 0,100% 100%,0 100%,0 18px);
+  padding:16px 16px 18px;
+}
+.card h3{
+  font-family:ZCOOL;font-size:19px;letter-spacing:.08em;color:#ffe9f1;
+  display:flex;align-items:center;gap:8px;
+}
+.card h3 span{font-family:ShareTechMono;font-size:10px;letter-spacing:.2em;color:var(--magenta)}
+.card p{
+  font-family:Rajdhani;font-weight:600;font-size:14.5px;line-height:1.5;color:#e6c9d4;margin-top:9px;
+}
+.card p b{color:#fff}
+
+.bonus{flex:1;display:flex;flex-direction:column;justify-content:space-between}
+.bonus .big{
+  font-family:Orbitron;font-weight:900;font-size:46px;color:var(--amber);
+  text-shadow:0 0 22px rgba(255,176,32,.55);letter-spacing:.02em;line-height:1;
+}
+.bonus .big small{font-family:ShareTechMono;font-size:12px;color:var(--dim);letter-spacing:.16em;display:block;margin-top:6px}
+
+/* 条形码 */
+.barcode{
+  height:34px;display:flex;align-items:flex-end;gap:2px;opacity:.55;margin-top:10px;
+}
+.barcode s{display:block;width:3px;background:var(--ink)}
+
+/* ============ 底部 ============ */
+footer{
+  position:absolute;left:0;right:0;bottom:0;z-index:2;
+  height:52px;padding:0 44px;display:flex;align-items:center;justify-content:space-between;
+  border-top:1px solid rgba(0,229,255,.16);
+  font-family:ShareTechMono;font-size:11px;letter-spacing:.24em;color:var(--dim);
+  background:linear-gradient(180deg,transparent,rgba(0,229,255,.05));
+}
+footer b{color:var(--cyan);font-weight:400}
+
+/* ============ 右侧人像 ============ */
+.portrait{
+  position:relative;flex:1;min-height:0;overflow:hidden;
+  border:1px solid rgba(0,229,255,.18);background:#05070d;
+}
+.portrait img{
+  position:absolute;left:50%;bottom:0;transform:translateX(-50%);
+  height:100%;width:auto;min-width:100%;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+}
+.portrait .fade-b{
+  position:absolute;left:0;right:0;bottom:0;height:46%;
+  background:linear-gradient(180deg,transparent,rgba(5,7,13,.88) 58%,#05070d);
+}
+.portrait .holo{
+  position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(180deg,rgba(0,229,255,.055) 0 1px,transparent 1px 4px);
+}
+.portrait .live{
+  position:absolute;top:12px;right:12px;display:flex;align-items:center;gap:6px;
+  background:#ff2d75;color:#fff;font:11px/1 ShareTechMono,monospace;
+  padding:5px 9px;letter-spacing:.12em;
+}
+.portrait .live i{width:5px;height:5px;border-radius:50%;background:#fff;display:block}
+.portrait .bonus{
+  position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:8px;
+  border:none;border-top:1px solid rgba(255,45,117,.45);clip-path:none;
+  background:linear-gradient(180deg,rgba(255,45,117,.24),rgba(5,7,13,.94) 70%);
+  padding:14px 16px 16px;
+}
+.portrait .bonus h3{font-size:18px}
+.portrait .bonus p{font-size:13px;margin-top:0}
+.portrait .big{font-size:40px}
+
+/* 公告卡 */
+.day.notice::before{background:var(--magenta);box-shadow:0 0 10px var(--magenta)}
+.day.notice .dow{color:#ffe9f1}
+.day.notice .date{color:var(--magenta);letter-spacing:.12em}
+.day.notice .txt{color:#d8c6cf}
+
+@media print{
+  @page{size:1600px 900px;margin:0}
+  body{background:#020306}
+  .board{transform:none!important}
+}
+
+/* ============ 白色主题（覆盖上面的深色值） ============ */
+:root{
+  --bg:#ffffff; --panel:#ffffff;
+  --cyan:#00a8c3; --magenta:#e80068; --lime:#0a6c86; --amber:#d68414;
+  --ink:#0b0e13; --dim:#6a727e; --line:rgba(11,14,19,.16);
+}
+body{background:#fff}
+.board{
+  background:
+    radial-gradient(900px 520px at 8% -8%, rgba(0,168,195,.07), transparent 60%),
+    radial-gradient(800px 480px at 102% 108%, rgba(232,0,104,.06), transparent 60%),
+    #fff;
+}
+.board::before{
+  background-image:
+    linear-gradient(rgba(11,14,19,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(11,14,19,.07) 1px, transparent 1px);
+  -webkit-mask-image:none; mask-image:none;
+}
+.board::after{
+  background:repeating-linear-gradient(180deg, rgba(11,14,19,.028) 0 1px, transparent 1px 4px);
+  mix-blend-mode:normal;
+}
+.kicker{color:var(--magenta)}
+.kicker i{background:var(--magenta);box-shadow:none}
+h1{color:#0b0e13; text-shadow:3px 0 0 rgba(232,0,104,.5), -3px 0 0 rgba(0,168,195,.5)}
+h1 em{color:var(--magenta); text-shadow:none}
+.sub,.hud{color:var(--dim)}
+.hud b{color:#0b0e13}
+.hud .bars s{background:#0b0e13;opacity:.75}
+.hud .bars s:nth-child(2n){opacity:.3}
+.hud .bars s:nth-child(3n){opacity:.5}
+.day{background:#fff;border-color:rgba(11,14,19,.16);box-shadow:5px 5px 0 rgba(11,14,19,.07)}
+.day::before{background:#0b0e13;box-shadow:none}
+.day.hot{background:#fff8fb}
+.day.hot::before{background:var(--magenta)}
+.day .dow{color:#0b0e13}
+.day .date{color:var(--lime)}
+.day.hot .date{color:var(--magenta)}
+.day .ico{background:#0b0e13;opacity:1}
+.slot{border-top-color:rgba(11,14,19,.18)}
+.time{color:var(--lime)}
+.txt{color:#30353e}
+.txt b{color:#0b0e13}
+.tag{background:#0b0e13;color:#fff}
+.card{background:#fff6fa;border-color:rgba(232,0,104,.35)}
+.card h3{color:#0b0e13}
+.card h3 span{color:var(--magenta)}
+.card p{color:#7a4a5e}
+.card p b{color:#0b0e13}
+.bonus .big{color:var(--amber);text-shadow:none}
+.barcode s{background:#0b0e13}
+.portrait{border-color:rgba(11,14,19,.16);background:#fff}
+.portrait img{-webkit-mask-image:none;mask-image:none}
+.portrait .fade-b{background:linear-gradient(180deg,transparent,rgba(255,255,255,.9) 58%,#fff)}
+.portrait .holo{background:repeating-linear-gradient(180deg,rgba(11,14,19,.05) 0 1px,transparent 1px 4px)}
+.portrait .bonus{border-top:1px solid rgba(232,0,104,.4);
+  background:linear-gradient(180deg,rgba(255,246,250,.94),rgba(255,255,255,.97) 70%)}
+.portrait .bonus h3{color:#0b0e13}
+.portrait .bonus p{color:#7a4a5e}
+footer{color:var(--dim);border-top-color:rgba(11,14,19,.14);
+  background:linear-gradient(180deg,transparent,rgba(255,255,255,.6))}
+footer b{color:#0b0e13}
+
+/* ============ 字号整体放大 ============ */
+.kicker{font-size:14px}
+h1{font-size:82px}
+h1 em{font-size:40px}
+.sub{font-size:18px}
+.hud{font-size:13px}
+.day .dow{font-size:22px}
+.day .date{font-size:17px}
+.time{font-size:13.5px}
+.txt{font-size:17px;line-height:1.4}
+.tag{font-size:11px}
+.day .ico{width:21px;height:21px}
+.card h3,.portrait .bonus h3{font-size:21px}
+.card p,.portrait .bonus p{font-size:15px}
+.portrait .bonus .big{font-size:46px}
+footer{font-size:12.5px}
+.bonus .big{font-size:46px}
+</style>
+</head>
+<body>
+
+<div class="board" id="board">
+
+  <header>
+    <div>
+      <div class="kicker"><i></i>Weekly Schedule</div>
+      <h1>周末魔啵周历<em>// v2.6</em></h1>
+      <div class="sub">Neon district · stream lineup · 8.8 — 8.14</div>
+    </div>
+    <div class="hud">
+      <div>SYS.<b>ONLINE</b> · LINK <b>96%</b></div>
+      <div>NODE <b>07</b> / SIGNAL <b>STABLE</b></div>
+      <div class="bars">
+        <s></s><s></s><s></s><s></s><s></s><s></s><s></s><s></s><s></s><s></s><s></s><s></s>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="days">
+
+      <!-- ========== 周一 ========== -->
+      <section class="day">
+        <div class="ico" style="--m:url('../图标-科技精选/monitor.svg')"></div>
+        <div class="dow">周一 <span class="date">08.08</span></div>
+        <div class="slot">
+          <div class="time">12:00 – 14:00</div>
+          <div class="txt"><span class="tag">闲聊</span>随便啵啵</div>
+        </div>
+      </section>
+
+      <!-- ========== 周二 ========== -->
+      <section class="day">
+        <div class="ico" style="--m:url('../图标-科技精选/gamepad-2.svg')"></div>
+        <div class="dow">周二 <span class="date">08.09</span></div>
+        <div class="slot">
+          <div class="time">12:00 – 14:00</div>
+          <div class="txt"><span class="tag">游戏</span><b>阿尔宙斯</b><br>希望别晕 3D 呜呜 qwq</div>
+        </div>
+      </section>
+
+      <!-- ========== 周三 ========== -->
+      <section class="day">
+        <div class="ico" style="--m:url('../图标-科技精选/mic.svg')"></div>
+        <div class="dow">周三 <span class="date">08.10</span></div>
+        <div class="slot">
+          <div class="time">12:00 – 14:00</div>
+          <div class="txt"><span class="tag">休息</span>下午补觉</div>
+        </div>
+        <div class="slot">
+          <div class="time">23:00 – 深夜</div>
+          <div class="txt"><span class="tag">电台</span><b>ASMR</b> 助眠</div>
+        </div>
+      </section>
+
+      <!-- ========== 周四 ========== -->
+      <section class="day hot">
+        <div class="ico" style="--m:url('../图标-科技精选/rocket.svg')"></div>
+        <div class="dow">周四 <span class="date">08.11</span></div>
+        <div class="slot">
+          <div class="time">12:00 – 14:00</div>
+          <div class="txt"><span class="tag">新游</span><b>咩咩启示录</b>！！<br>好期待哦～要把大家都做进去</div>
+        </div>
+      </section>
+
+      <!-- ========== 周五 ========== -->
+      <section class="day hot">
+        <div class="ico" style="--m:url('../图标-科技精选/terminal.svg')"></div>
+        <div class="dow">周五 <span class="date">08.12</span></div>
+        <div class="slot">
+          <div class="time">17:00 – 14:00</div>
+          <div class="txt"><span class="tag">游戏</span><b>咩咩启示录</b></div>
+        </div>
+        <div class="slot">
+          <div class="time">23:00 – 深夜</div>
+          <div class="txt"><span class="tag">联动</span>舰长参与 <b>王者荣耀</b></div>
+        </div>
+      </section>
+
+      <!-- ========== 周六 ========== -->
+      <section class="day">
+        <div class="ico" style="--m:url('../图标-科技精选/radio.svg')"></div>
+        <div class="dow">周六 <span class="date">08.13</span></div>
+        <div class="slot">
+          <div class="time">12:00 – 14:00</div>
+          <div class="txt"><span class="tag">休息</span>自由活动</div>
+        </div>
+        <div class="slot">
+          <div class="time">23:00 – 深夜</div>
+          <div class="txt"><span class="tag">歌回</span>但是版权？</div>
+        </div>
+      </section>
+
+      <!-- ========== 周日 ========== -->
+      <section class="day">
+        <div class="ico" style="--m:url('../图标-科技精选/cpu.svg')"></div>
+        <div class="dow">周日 <span class="date">08.14</span></div>
+        <div class="slot">
+          <div class="time">12:00 – 14:00</div>
+          <div class="txt"><span class="tag">游戏</span><b>咩咩启示录</b></div>
+        </div>
+      </section>
+
+      <!-- ========== 公告（补满第二行） ========== -->
+      <section class="day notice">
+        <div class="dow">公告 <span class="date">// NOTICE</span></div>
+        <div class="slot">
+          <div class="txt">Q 版抱枕已到货<br>私信领取<br>直播时间以群公告为准</div>
+        </div>
+        <div class="barcode" id="bc"></div>
+      </section>
+
+    </div>
+
+    <!-- ========== 右侧：人像 + 福利 ========== -->
+    <aside>
+      <div class="portrait">
+        <img src="img/人物.png" alt="人物立绘">
+        <div class="holo"></div>
+        <div class="fade-b"></div>
+        <div class="live"><i></i>LIVE</div>
+        <div class="card bonus">
+          <h3>本月上舰福利 <span>// BONUS</span></h3>
+          <p>8 月舰长：亲手画指针和壁纸<br>Q 版抱枕已到货 · 直播时间以群公告为准</p>
+          <div class="big">03<small>SLOTS LEFT</small></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    <span><b>//</b> TRANSMISSION END</span>
+    <span>CH.██████ · NEON DISTRICT</span>
+  </footer>
+</div>
+
+<script>
+// 条形码随机条纹
+const bc = document.getElementById('bc');
+for (let i = 0; i < 46; i++) {
+  const s = document.createElement('s');
+  s.style.height = (10 + Math.random() * 22) + 'px';
+  bc.appendChild(s);
+}
+// 窗口小时自动缩放，方便预览
+function fit(){
+  const b = document.getElementById('board');
+  const k = Math.min(window.innerWidth / 1660, window.innerHeight / 960, 1);
+  b.style.transform = 'scale(' + k + ')';
+  document.body.style.height = (900 * k) + 'px';
+}
+window.addEventListener('resize', fit); fit();
+</script>
+</body>
+</html>

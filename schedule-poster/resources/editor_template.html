@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>播表编辑器 · 白色赛博风</title>
+<style>
+/* ================= 字体 ================= */
+@font-face{font-family:ZCOOL;src:url("../字体/ZCOOLQingKeHuangYou-400.ttf")}
+@font-face{font-family:Orbitron;src:url("../字体/Orbitron-700.ttf");font-weight:700}
+@font-face{font-family:Orbitron;src:url("../字体/Orbitron-900.ttf");font-weight:900}
+@font-face{font-family:ChakraPetch;src:url("../字体/ChakraPetch-700.ttf");font-weight:700}
+@font-face{font-family:ShareTechMono;src:url("../字体/ShareTechMono-400.ttf")}
+@font-face{font-family:Rajdhani;src:url("../字体/Rajdhani-600.ttf");font-weight:600}
+@font-face{font-family:Oxanium;src:url("../字体/Oxanium-700.ttf");font-weight:700}
+
+:root{
+  --ink:#0b0e13; --body:#30353e; --gray:#6a727e;
+  --cy:#00a8c3; --teal:#0a6c86; --mg:#e80068; --amber:#d68414;
+  --line:rgba(11,14,19,.16);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+
+/* ================= 编辑器外框 ================= */
+body{
+  background:#eef1f5;color:var(--ink);overflow:hidden;
+  font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+}
+.toolbar{
+  position:fixed;left:0;right:0;top:0;z-index:50;height:52px;
+  display:flex;align-items:center;gap:16px;padding:0 18px;
+  background:#fff;border-bottom:1px solid rgba(11,14,19,.14);
+  box-shadow:0 2px 10px rgba(11,14,19,.05);
+}
+.toolbar .brand{font-family:ZCOOL,"Microsoft YaHei",sans-serif;font-size:19px;letter-spacing:.06em}
+.toolbar .brand i{color:var(--mg);font-style:normal}
+.toolbar .hint{font-size:13px;color:var(--gray);flex:1}
+.toolbar .acts{display:flex;align-items:center;gap:10px}
+.toolbar button{
+  font-family:"Microsoft YaHei",sans-serif;font-size:13.5px;
+  padding:7px 15px;border:1px solid var(--ink);background:#fff;color:var(--ink);
+  cursor:pointer;transition:.15s;
+}
+.toolbar button:hover{background:var(--ink);color:#fff}
+.toolbar button.primary{background:var(--mg);border-color:var(--mg);color:#fff}
+.toolbar button.primary:hover{background:#c5005a}
+.saved{font-size:12px;color:var(--gray);min-width:76px;text-align:right}
+
+.stage{position:fixed;inset:52px 0 0 0;display:grid;place-items:center}
+.board{
+  position:relative;width:1600px;height:900px;flex:none;
+  background-color:#fff;
+  background-image:
+    linear-gradient(rgba(11,14,19,.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(11,14,19,.07) 1px,transparent 1px);
+  background-size:40px 40px;
+  transform-origin:center center;
+  box-shadow:0 20px 60px rgba(11,14,19,.12);
+}
+
+/* ================= 版式 ================= */
+.board{display:flex;flex-direction:column}
+header{position:relative;z-index:2;flex:none;padding:26px 44px 0;display:flex;justify-content:space-between}
+.kicker{font-family:ShareTechMono;font-size:14px;letter-spacing:.3em;color:var(--mg);display:flex;align-items:center;gap:10px}
+.kicker i{display:block;width:8px;height:8px;background:var(--mg)}
+h1{
+  font-family:ZCOOL,"Microsoft YaHei",sans-serif;font-size:82px;line-height:1;
+  letter-spacing:.02em;margin-top:6px;color:var(--ink);
+  text-shadow:3px 0 0 rgba(232,0,104,.5),-3px 0 0 rgba(0,168,195,.5);
+}
+h1 em{font-family:Orbitron,"Microsoft YaHei";font-style:normal;font-weight:900;font-size:32px;
+  letter-spacing:.1em;color:var(--mg);text-shadow:none;vertical-align:super;margin-left:12px}
+.sub{font-family:Rajdhani,"Microsoft YaHei";font-weight:600;font-size:18px;letter-spacing:.22em;
+  color:var(--gray);margin-top:6px;text-transform:uppercase}
+.hud{text-align:right;font-family:ShareTechMono;font-size:13px;color:var(--gray);line-height:1.9}
+.hud .bars{display:flex;gap:3px;justify-content:flex-end;margin-top:6px}
+.hud .bars s{width:5px;height:16px;background:var(--ink);display:block;opacity:.75}
+.hud .bars s:nth-child(2n){height:9px;opacity:.3}
+.hud .bars s:nth-child(3n){height:22px;opacity:.5}
+
+.wrap{position:relative;z-index:2;flex:1;min-height:0;padding:20px 44px 26px;
+  display:grid;grid-template-columns:1fr 372px;gap:26px}
+.days{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1fr;
+  height:100%;gap:14px}
+
+.day{
+  position:relative;background:#fff;border:1px solid var(--line);
+  box-shadow:5px 5px 0 rgba(11,14,19,.07);
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 20px),calc(100% - 20px) 100%,0 100%);
+  padding:13px 14px 12px;
+}
+.day::before{content:"";position:absolute;left:0;top:0;width:44px;height:2.5px;background:var(--ink)}
+.day::after{content:attr(data-n);position:absolute;right:14px;bottom:0;
+  font-family:Orbitron;font-weight:900;font-size:74px;color:#e9edf3;line-height:1}
+.day.hot{background:#fff8fb}
+.day.hot::before{background:var(--mg)}
+.day.hot .date{color:var(--mg)}
+.day.notice{background:#fff8fb;border-color:rgba(232,0,104,.28)}
+.day.notice::before{background:var(--mg)}
+
+.day .ico{position:absolute;right:13px;top:11px;width:21px;height:21px;display:block}
+.dow{font-size:22px;font-weight:700;line-height:1.2;padding-right:26px}
+.date{font-family:ChakraPetch,"Microsoft YaHei";font-weight:700;font-size:17px;
+  color:var(--teal);margin-left:9px;letter-spacing:.02em}
+
+.slot{position:relative;margin-top:9px;border-top:1px dashed rgba(11,14,19,.18);padding-top:8px}
+.slot:first-of-type{border-top:none;padding-top:0}
+.slot-head{display:flex;align-items:center;justify-content:space-between}
+.time{font-family:ShareTechMono;font-size:13.5px;color:var(--teal);letter-spacing:.04em}
+.tag{display:inline-block;font-size:11.5px;font-weight:700;line-height:17px;
+  padding:0 11px;background:var(--ink);color:#fff;margin-top:5px}
+.txt{font-size:17px;color:var(--body);line-height:1.35;margin-top:6px;white-space:pre-wrap}
+
+.del-slot{font-size:11px;color:var(--gray);background:#fff;border:1px solid var(--line);
+  padding:1px 7px;cursor:pointer;opacity:0;transition:.15s;font-family:"Microsoft YaHei"}
+.slot:hover .del-slot{opacity:1}
+.del-slot:hover{color:var(--mg);border-color:var(--mg)}
+.add-slot{position:absolute;left:13px;bottom:9px;font-size:11px;color:var(--gray);
+  background:#fff;border:1px dashed rgba(11,14,19,.3);padding:2px 8px;cursor:pointer;
+  opacity:0;transition:.15s;font-family:"Microsoft YaHei"}
+.day:hover .add-slot{opacity:1}
+.add-slot:hover{color:var(--teal);border-color:var(--teal)}
+
+/* ================= 右侧 ================= */
+aside{height:100%;min-height:0}
+.portrait{position:relative;height:100%;overflow:hidden;background:#fff;
+  border:1px solid var(--line);margin-right:-44px}
+.portrait img{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center bottom;
+  user-select:none;-webkit-user-drag:none}
+.fade-b{position:absolute;left:0;right:0;bottom:0;height:44%;
+  background:linear-gradient(180deg,transparent,rgba(255,255,255,.92) 55%,#fff)}
+.holo{position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(180deg,rgba(11,14,19,.05) 0 1px,transparent 1px 4px)}
+.live{position:absolute;top:14px;right:14px;display:flex;align-items:center;gap:6px;
+  background:var(--mg);color:#fff;font-family:ShareTechMono;font-size:11.5px;
+  padding:5px 9px;letter-spacing:.12em}
+.live i{width:5px;height:5px;border-radius:50%;background:#fff;display:block}
+
+.bonus{position:absolute;left:0;right:0;bottom:0;padding:14px 16px 16px;
+  border-top:1px solid rgba(232,0,104,.4);
+  background:linear-gradient(180deg,rgba(255,246,250,.95),rgba(255,255,255,.97) 70%)}
+.bonus h3{font-family:ZCOOL,"Microsoft YaHei";font-size:21px;color:var(--ink);letter-spacing:.04em}
+.bonus .bonus-tag{font-family:ShareTechMono;font-size:10.5px;color:var(--mg);letter-spacing:.16em;margin-top:4px}
+.bonus p{font-size:15px;color:#7a4a5e;margin-top:8px;line-height:1.45}
+.bonus .big{display:flex;align-items:baseline;gap:10px;margin-top:10px}
+.bonus .big b{font-family:Oxanium,"Microsoft YaHei";font-weight:700;font-size:46px;color:var(--amber);line-height:1}
+.bonus .big span{font-family:ShareTechMono;font-size:11px;color:var(--gray);letter-spacing:.14em}
+
+footer{position:relative;z-index:2;flex:none;height:48px;padding:0 44px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-top:1px solid rgba(11,14,19,.14);
+  font-family:ShareTechMono;font-size:12.5px;letter-spacing:.24em;color:var(--gray)}
+footer b{color:var(--ink);font-weight:400}
+
+/* ================= 可编辑区域 ================= */
+[contenteditable]{outline:none;border-radius:2px;transition:background .12s}
+[contenteditable]:hover{background:rgba(0,168,195,.08)}
+[contenteditable]:focus{background:rgba(0,168,195,.14);box-shadow:0 0 0 2px rgba(0,168,195,.45)}
+[contenteditable]:empty::before{content:attr(data-ph);color:#c3c9d2}
+h1 [contenteditable]:focus{background:rgba(0,168,195,.1)}
+.tag:focus{box-shadow:0 0 0 2px rgba(0,168,195,.6)}
+
+body.exporting [contenteditable]{background:none!important;box-shadow:none!important}
+body.exporting .no-export{display:none!important}
+body.exporting .board{box-shadow:none}
+
+@media print{
+  @page{size:1600px 900px;margin:0}
+  body{background:#fff;overflow:visible}
+  .toolbar,.no-export{display:none!important}
+  .stage{position:static;inset:auto;display:block}
+  .board{transform:none!important;box-shadow:none!important;margin:0;page-break-after:avoid}
+  [contenteditable]{background:none!important;box-shadow:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar no-export">
+  <div class="brand">播表编辑器 <i>/</i> 白色赛博</div>
+  <div class="hint">点任意文字直接改 · 回车换行 · 改完自动存在本机浏览器</div>
+  <div class="acts">
+    <span class="saved" id="saved"></span>
+    <button data-act="reset">恢复模板</button>
+    <button data-act="pdf">存成 PDF</button>
+    <button data-act="png" class="primary">存成图片</button>
+  </div>
+</div>
+
+<div class="stage">
+<div class="board" id="board">
+<div id="content" style="display:flex;flex-direction:column;height:100%">
+
+  <header>
+    <div>
+      <div class="kicker"><i></i><span contenteditable="true" spellcheck="false" data-ph="标题小字">WEEKLY SCHEDULE</span></div>
+      <h1><span contenteditable="true" spellcheck="false" data-ph="周历标题">周末魔啵周历</span><em contenteditable="true" spellcheck="false" data-ph="版本号">// v2.6</em></h1>
+      <div class="sub" contenteditable="true" spellcheck="false" data-ph="副标题">NEON DISTRICT · STREAM LINEUP · 8.8 — 8.14</div>
+    </div>
+    <div class="hud">
+      <div contenteditable="true" spellcheck="false">SYS. ONLINE · LINK 96%</div>
+      <div contenteditable="true" spellcheck="false">NODE 07 / SIGNAL STABLE</div>
+      <div class="bars"><s></s><s></s><s></s><s></s><s></s><s></s><s></s><s></s><s></s><s></s><s></s><s></s></div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="days">
+
+      <section class="day" data-n="01">
+        <div class="ico" style="--m:url('../图标-科技精选/monitor.svg')"></div>
+        <div class="dow"><span contenteditable="true" spellcheck="false" data-ph="星期">周一</span><span class="date" contenteditable="true" spellcheck="false" data-ph="日期">08.08</span></div>
+        <div class="slot">
+          <div class="slot-head"><span class="time" contenteditable="true" spellcheck="false" data-ph="时段">12:00 – 14:00</span><button class="del-slot no-export">删除</button></div>
+          <div class="tag" contenteditable="true" spellcheck="false" data-ph="标签">闲聊</div>
+          <div class="txt" contenteditable="true" spellcheck="false" data-ph="内容">随便啵啵</div>
+        </div>
+        <button class="add-slot no-export">+ 时段</button>
+      </section>
+
+      <section class="day" data-n="02">
+        <div class="ico" style="--m:url('../图标-科技精选/gamepad-2.svg')"></div>
+        <div class="dow"><span contenteditable="true" spellcheck="false" data-ph="星期">周二</span><span class="date" contenteditable="true" spellcheck="false" data-ph="日期">08.09</span></div>
+        <div class="slot">
+          <div class="slot-head"><span class="time" contenteditable="true" spellcheck="false" data-ph="时段">12:00 – 14:00</span><button class="del-slot no-export">删除</button></div>
+          <div class="tag" contenteditable="true" spellcheck="false" data-ph="标签">游戏</div>
+          <div class="txt" contenteditable="true" spellcheck="false" data-ph="内容">阿尔宙斯<br>希望别晕 3D 呜呜 qwq</div>
+        </div>
+        <button class="add-slot no-export">+ 时段</button>
+      </section>
+
+      <section class="day" data-n="03">
+        <div class="ico" style="--m:url('../图标-科技精选/mic.svg')"></div>
+        <div class="dow"><span contenteditable="true" spellcheck="false" data-ph="星期">周三</span><span class="date" contenteditable="true" spellcheck="false" data-ph="日期">08.10</span></div>
+        <div class="slot">
+          <div class="slot-head"><span class="time" contenteditable="true" spellcheck="false" data-ph="时段">12:00 – 14:00</span><button class="del-slot no-export">删除</button></div>
+          <div class="tag" contenteditable="true" spellcheck="false" data-ph="标签">休息</div>
+          <div class="txt" contenteditable="true" spellcheck="false" data-ph="内容">下午补觉</div>
+        </div>
+        <div class="slot">
+          <div class="slot-head"><span class="time" contenteditable="true" spellcheck="false" data-ph="时段">23:00 – 深夜</span><button class="del-slot no-export">删除</button></div>
+          <div class="tag" contenteditable="true" spellcheck="false" data-ph="标签">电台</div>
+          <div class="txt" contenteditable="true" spellcheck="false" data-ph="内容">ASMR 助眠</div>
+        </div>
+        <button class="add-slot no-export">+ 时段</button>
+      </section>
+
+      <section class="day hot" data-n="04">
+        <div class="ico" style="--m:url('../图标-科技精选/rocket.svg')"></div>
+        <div class="dow"><span contenteditable="true" spellcheck="false" data-ph="星期">周四</span><span class="date" contenteditable="true" spellcheck="false" data-ph="日期">08.11</span></div>
+        <div class="slot">
+          <div class="slot-head"><span class="time" contenteditable="true" spellcheck="false" data-ph="时段">12:00 – 14:00</span><button class="del-slot no-export">删除</button></div>
+          <div class="tag" contenteditable="true" spellcheck="false" data-ph="标签">新游</div>
+          <div class="txt" contenteditable="true" spellcheck="false" data-ph="内容">咩咩启示录！！<br>好期待哦～要把大家都做进去</div>
+        </div>
+        <button class="add-slot no-export">+ 时段</button>
+      </section>
+
+      <section class="day hot" data-n="05">
+        <div class="ico" style="--m:url('../图标-科技精选/terminal.svg')"></div>
+        <div class="dow"><span contenteditable="true" spellcheck="false" data-ph="星期">周五</span><span class="date" contenteditable="true" spellcheck="false" data-ph="日期">08.12</span></div>
+        <div class="slot">
+          <div class="slot-head"><span class="time" contenteditable="true" spellcheck="false" data-ph="时段">17:00 – 14:00</span><button class="del-slot no-export">删除</button></div>
+          <div class="tag" contenteditable="true" spellcheck="false" data-ph="标签">游戏</div>
+          <div class="txt" contenteditable="true" spellcheck="false" data-ph="内容">咩咩启示录</div>
+        </div>
+        <div class="slot">
+          <div class="slot-head"><span class="time" contenteditable="true" spellcheck="false" data-ph="时段">23:00 – 深夜</span><button class="del-slot no-export">删除</button></div>
+          <div class="tag" contenteditable="true" spellcheck="false" data-ph="标签">联动</div>
+          <div class="txt" contenteditable="true" spellcheck="false" data-ph="内容">舰长参与 王者荣耀</div>
+        </div>
+        <button class="add-slot no-export">+ 时段</button>
+      </section>
+
+      <section class="day" data-n="06">
+        <div class="ico" style="--m:url('../图标-科技精选/radio.svg')"></div>
+        <div class="dow"><span contenteditable="true" spellcheck="false" data-ph="星期">周六</span><span class="date" contenteditable="true" spellcheck="false" data-ph="日期">08.13</span></div>
+        <div class="slot">
+          <div class="slot-head"><span class="time" contenteditable="true" spellcheck="false" data-ph="时段">12:00 – 14:00</span><button class="del-slot no-export">删除</button></div>
+          <div class="tag" contenteditable="true" spellcheck="false" data-ph="标签">休息</div>
+          <div class="txt" contenteditable="true" spellcheck="false" data-ph="内容">自由活动</div>
+        </div>
+        <div class="slot">
+          <div class="slot-head"><span class="time" contenteditable="true" spellcheck="false" data-ph="时段">23:00 – 深夜</span><button class="del-slot no-export">删除</button></div>
+          <div class="tag" contenteditable="true" spellcheck="false" data-ph="标签">歌回</div>
+          <div class="txt" contenteditable="true" spellcheck="false" data-ph="内容">但是版权？</div>
+        </div>
+        <button class="add-slot no-export">+ 时段</button>
+      </section>
+
+      <section class="day" data-n="07">
+        <div class="ico" style="--m:url('../图标-科技精选/cpu.svg')"></div>
+        <div class="dow"><span contenteditable="true" spellcheck="false" data-ph="星期">周日</span><span class="date" contenteditable="true" spellcheck="false" data-ph="日期">08.14</span></div>
+        <div class="slot">
+          <div class="slot-head"><span class="time" contenteditable="true" spellcheck="false" data-ph="时段">12:00 – 14:00</span><button class="del-slot no-export">删除</button></div>
+          <div class="tag" contenteditable="true" spellcheck="false" data-ph="标签">游戏</div>
+          <div class="txt" contenteditable="true" spellcheck="false" data-ph="内容">咩咩启示录</div>
+        </div>
+        <button class="add-slot no-export">+ 时段</button>
+      </section>
+
+      <section class="day notice" data-n="08">
+        <div class="dow"><span contenteditable="true" spellcheck="false" data-ph="标题">公告</span><span class="date" contenteditable="true" spellcheck="false" data-ph="英文">// NOTICE</span></div>
+        <div class="txt" style="margin-top:14px" contenteditable="true" spellcheck="false" data-ph="公告内容">Q 版抱枕已到货<br>私信领取<br>直播时间以群公告为准</div>
+      </section>
+
+    </div>
+
+    <aside>
+      <div class="portrait">
+        <img src="__PORTRAIT__" alt="人物立绘" draggable="false">
+        <div class="holo"></div>
+        <div class="fade-b"></div>
+        <div class="live"><i></i>LIVE</div>
+        <div class="bonus">
+          <h3 contenteditable="true" spellcheck="false" data-ph="卡片标题">本月上舰福利</h3>
+          <div class="bonus-tag" contenteditable="true" spellcheck="false">// BONUS</div>
+          <p contenteditable="true" spellcheck="false" data-ph="说明">8 月舰长：亲手画指针和壁纸<br>Q 版抱枕已到货 · 直播时间以群公告为准</p>
+          <div class="big"><b contenteditable="true" spellcheck="false" data-ph="03">03</b><span contenteditable="true" spellcheck="false">SLOTS LEFT</span></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    <span><b>//</b> <span contenteditable="true" spellcheck="false">TRANSMISSION END</span></span>
+    <span contenteditable="true" spellcheck="false">CH.██████ · NEON DISTRICT</span>
+  </footer>
+
+</div>
+</div>
+</div>
+
+<script>__HTML2CANVAS__</script>
+<script>
+(function(){
+  const KEY = 'cyber-board-v1';
+  const board = document.getElementById('board');
+  const content = document.getElementById('content');
+  const savedEl = document.getElementById('saved');
+  let timer = null;
+
+  function save(){
+    try{
+      localStorage.setItem(KEY, content.innerHTML);
+      savedEl.textContent = '已自动保存';
+    }catch(e){ savedEl.textContent = '保存失败'; }
+  }
+  function restore(){
+    try{
+      const s = localStorage.getItem(KEY);
+      if(s && s.length > 100){ content.innerHTML = s; }
+    }catch(e){}
+  }
+
+  content.addEventListener('input', function(){
+    savedEl.textContent = '保存中…';
+    clearTimeout(timer);
+    timer = setTimeout(save, 500);
+  });
+
+  // 回车 = 换行（不产生新的 div），Esc 退出编辑
+  content.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ e.preventDefault(); document.execCommand('insertLineBreak'); }
+    if(e.key === 'Escape'){ e.target.blur(); }
+  });
+
+  // 粘贴一律转纯文本，避免把网页样式带进来
+  content.addEventListener('paste', function(e){
+    e.preventDefault();
+    const t = (e.clipboardData || window.clipboardData).getData('text/plain') || '';
+    document.execCommand('insertText', false, t);
+  });
+
+  // 拖拽排序不做，先保证不乱
+  document.addEventListener('click', function(e){
+    const del = e.target.closest('.del-slot');
+    if(del){
+      const slot = del.closest('.slot');
+      const card = del.closest('.day');
+      const all = card.querySelectorAll('.slot');
+      if(all.length <= 1){
+        slot.querySelectorAll('[contenteditable]').forEach(function(n){ n.textContent = ''; });
+      }else{
+        slot.remove();
+      }
+      save();
+      return;
+    }
+    const add = e.target.closest('.add-slot');
+    if(add){
+      const card = add.closest('.day');
+      const slots = card.querySelectorAll('.slot');
+      if(slots.length){
+        const clone = slots[slots.length - 1].cloneNode(true);
+        clone.querySelectorAll('[contenteditable]').forEach(function(n){ n.textContent = ''; });
+        const t = clone.querySelector('.time');
+        if(t) t.textContent = '12:00 – 14:00';
+        slots[slots.length - 1].after(clone);
+        save();
+      }
+      return;
+    }
+  });
+
+  // 自适应缩放
+  function fit(){
+    const k = Math.min((window.innerWidth - 40) / 1600, (window.innerHeight - 52 - 56) / 900, 1);
+    board.style.transform = 'scale(' + k + ')';
+  }
+  window.addEventListener('resize', fit);
+
+  // 导出 PNG
+  async function toPng(){
+    const prev = board.style.transform;
+    board.style.transform = 'none';
+    document.body.classList.add('exporting');
+    try{
+      const canvas = await html2canvas(board, {
+        scale: 2, backgroundColor: '#ffffff', logging: false,
+        width: 1600, height: 900, windowWidth: 1600, windowHeight: 900
+      });
+      const a = document.createElement('a');
+      a.download = '播表-' + new Date().toISOString().slice(0, 10) + '.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    }catch(err){
+      alert('导出图片失败了，换「存成 PDF」也一样清楚。');
+      console.error(err);
+    }finally{
+      document.body.classList.remove('exporting');
+      board.style.transform = prev;
+    }
+  }
+
+  document.querySelector('.acts').addEventListener('click', function(e){
+    const b = e.target.closest('button');
+    if(!b) return;
+    const act = b.dataset.act;
+    if(act === 'png') toPng();
+    if(act === 'pdf') window.print();
+    if(act === 'reset'){
+      if(confirm('恢复成最初的样子？你改过的内容会丢掉。')){
+        try{ localStorage.removeItem(KEY); }catch(err){}
+        location.reload();
+      }
+    }
+  });
+
+  restore();
+  fit();
+})();
+</script>
+</body>
+</html>

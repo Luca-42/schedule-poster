@@ -1,0 +1,72 @@
+{
+  "name": "white-cyber",
+  "canvas": [
+    1600,
+    900
+  ],
+  "scale": 2,
+  "fonts": {
+    "dir": "fonts",
+    "display": "ZCOOLQingKeHuangYou-400.ttf",
+    "mono": "ShareTechMono-400.ttf",
+    "num": "ChakraPetch-700.ttf",
+    "numBig": "Oxanium-700.ttf",
+    "sub": "Rajdhani-600.ttf",
+    "ui": [
+      "C:/Windows/Fonts/msyh.ttc",
+      "C:/Windows/Fonts/simhei.ttf"
+    ]
+  },
+  "icons": {
+    "dir": "icons"
+  },
+  "colors": {
+    "paper": "#ffffff",
+    "ink": "#0b0e13",
+    "body": "#30353e",
+    "muted": "#6a727e",
+    "accent": "#0a6c86",
+    "accent2": "#e80068",
+    "highlight": "#d68414",
+    "grid": "#e6eaf0",
+    "card": "#ffffff",
+    "hot": "#fff8fb"
+  },
+  "layout": {
+    "margin": 44,
+    "aside": 372,
+    "gap": 26,
+    "top": 180,
+    "footer": 48,
+    "cols": 4
+  },
+  "effects": {
+    "dark": false,
+    "grid": true,
+    "shadow": true,
+    "cut": 20,
+    "scanlines": false,
+    "image": null,
+    "scrim": 0,
+    "card_alpha": 255
+  },
+  "portrait": {
+    "bleed": true,
+    "feather": 0
+  },
+  "type": {
+    "kicker": 14,
+    "title": 82,
+    "version": 32,
+    "subtitle": 18,
+    "hud": 13,
+    "dow": 22,
+    "date": 17,
+    "time": 13.5,
+    "tag": 11.5,
+    "body": 17,
+    "watermark": 74,
+    "big": 46,
+    "footer": 12.5
+  }
+}
